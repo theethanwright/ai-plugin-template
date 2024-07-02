@@ -24,7 +24,7 @@
     "esbuild": "^0.18.12",
     "eslint": "8.45.0",
     "eslint-config-next": "13.4.10",
-    "next": "13.4.10",
+    "next": "^14.2.4",
     "openai-edge": "^1.2.0",
     "postcss": "8.4.26",
     "prettier": "^3.0.0",
