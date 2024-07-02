@@ -9,7 +9,7 @@ export interface WebsiteData {
   export async function callData(url: string): Promise<WebsiteData> {
     try {
       const response = await fetch(`/api/?url=${encodeURIComponent(url)}`, {
-        method: "GET", // Explicitly specifying the GET method
+        method: "POST", // Explicitly specifying the GET method
       });
       console.log(`Response status: ${response.status}`);
   

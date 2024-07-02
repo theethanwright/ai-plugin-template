@@ -71,3 +71,24 @@ async function getWebsiteData(url: string): Promise<WebsiteData> {
     screenshot,
   };
 }
+
+// API handler
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+
+  const { url } = req.query;
+
+  if (!url || typeof url !== 'string') {
+    console.error('Invalid URL:', url);
+    return res.status(400).json({ error: 'Invalid URL' });
+  }
+
+  try {
+    console.log('Fetching website data for URL:', url);
+    const data = await getWebsiteData(url as string);
+    console.log('Fetched website data:', data);
+    return res.status(200).json(data);
+  } catch (error) {
+    console.error('Failed to scrape website data:', error);
+    return res.status(500).json({ error: 'Failed to scrape website data' });
+  }
+}

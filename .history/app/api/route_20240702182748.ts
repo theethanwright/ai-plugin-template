@@ -70,4 +70,3 @@ async function getWebsiteData(url: string): Promise<WebsiteData> {
     colors: Array.from(colors),
     screenshot,
   };
-}

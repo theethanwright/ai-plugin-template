@@ -71,3 +71,27 @@ async function getWebsiteData(url: string): Promise<WebsiteData> {
     screenshot,
   };
 }
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== 'GET') {
+    res.setHeader('Allow', ['GET']);
+    res.status(405).end(`Method ${req.method} Not Allowed`);
+    return;
+  }
+
+  const { url } = req.query;
+  
+  if (typeof url !== 'string') {
+    res.status(400).json({ error: 'Invalid URL' });
+    return;
+  }
+
+  try {
+    const data = await getWebsiteData(url);
+    // Convert Buffer to base64 string for JSON serialization
+    data.screenshot = data.screenshot.toString('base64');
+    res.status(200).json(data);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch website data' });
+  }
+}

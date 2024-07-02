@@ -19,17 +19,9 @@ export const runtime = "edge";
 // https://platform.openai.com/docs/guides/gpt/chat-completions-api
 const systemMessage = {
   role: "system",
-  content: `You are a skilled assistant at analyzing web content for brand elements. Analyze the given web content and return the response as a valid JSON object with the following keys: primary_color, secondary_color, color_scheme, fonts, key_adjectives, and key_verbs. Ensure the output is always in the following format: 
-                    {
-                        "primary_color": "#ffffff",
-                        "secondary_color": "#101010",
-                        "color_scheme": ["#ffffff", "#101010"],
-                        "header_font": ["Nohemi"],
-                        "paragraph_font": ["IBM Plex Mono, monospace"],
-                        "key_adjectives": ["graphic", "visual", "creative", "professional"],
-                        "key_verbs": ["design", "illustration", "create", "share"]
-                    }. 
-                    If any information is not available, return an empty string for colors and fonts, and an empty list for color_scheme, key_adjectives, and key_verbs.`,
+  content: `You are an expert poet, you will be given a list of bulleted strings and 
+you will write a short and concise poem using some of the information in the list. 
+Only respond with a poem, don't make the poem too long.`,
 } as const;
 
 // This is used to format the message that the user sends to the API. Note we should
