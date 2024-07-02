@@ -6,7 +6,6 @@ import { getTextOffset } from "@/lib/getTextOffset";
 import { scrapeWebsiteData } from "@/lib/scrapeWebsiteData";
 import { CompletionRequestBody } from "@/lib/types";
 import { useState } from "react";
-import { text } from "stream/consumers";
 import { z } from "zod";
 
 // This function calls our API and lets you read each character as it comes in.
@@ -142,8 +141,6 @@ export default function Plugin() {
     const layers = await scrapeWebsiteData();
 
     let text = layers;
-
-    return text
   };
 
   return (
@@ -175,14 +172,13 @@ export default function Plugin() {
       <input>
 
       </input>
-      <div>
-      
-      </div>
+      {completion && (
         <div className="border border-gray-600 rounded p-5 bg-gray-800 shadow-lg m-2 text-gray-200">
           <pre className="whitespace-pre-wrap">
             <p className="text-md">{completion}</p>
           </pre>
         </div>
+      )}
     </div>
   );
 }

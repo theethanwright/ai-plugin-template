@@ -6,7 +6,6 @@ import { getTextOffset } from "@/lib/getTextOffset";
 import { scrapeWebsiteData } from "@/lib/scrapeWebsiteData";
 import { CompletionRequestBody } from "@/lib/types";
 import { useState } from "react";
-import { text } from "stream/consumers";
 import { z } from "zod";
 
 // This function calls our API and lets you read each character as it comes in.
@@ -141,9 +140,74 @@ export default function Plugin() {
   const onScanBrand = async () => {
     const layers = await scrapeWebsiteData();
 
-    let text = layers;
+    if (!layers.length) {
+      figmaAPI.run(async (figma) => {
+        figma.notify(
+          "Please select a layer with text in it to generate a poem.",
+          { error: true },
+        );
+      });
+      return;
+    }
 
-    return text
+    const reader = await streamAIResponse({
+      layers,
+    });
+
+    let text = "";
+    let nodeID: string | null = null;
+    const textPosition = await getTextOffset();
+
+    const createOrUpdateTextNode = async () => {
+      // figmaAPI.run is a helper that lets us run code in the figma plugin sandbox directly
+      // from the iframe without having to post messages back and forth. For more info,
+      // see /lib/figmaAPI.ts
+      //
+      // It is important to note that any variables that this function closes over must be
+      // specified in the second argument to figmaAPI.run. This is because the code is actually
+      // run in the figma plugin sandbox, not in the iframe.
+      nodeID = await figmaAPI.run(
+        async (figma, { nodeID, text, textPosition }) => {
+          let node = figma.getNodeById(nodeID ?? "");
+
+          // If the node doesn't exist, create it and position it to the right of the selection.
+          if (!node) {
+            node = figma.createText();
+            node.x = textPosition?.x ?? 0;
+            node.y = textPosition?.y ?? 0;
+          }
+
+          if (node.type !== "TEXT") {
+            return "";
+          }
+
+          const oldHeight = node.height;
+
+          await figma.loadFontAsync({ family: "Inter", style: "Medium" });
+          node.fontName = { family: "Inter", style: "Medium" };
+
+          node.characters = text;
+
+          // Scroll and zoom to the node if it's height changed (ex we've added a new line).
+          // We only do this when the height changes to reduce flickering.
+          if (oldHeight !== node.height) {
+            figma.viewport.scrollAndZoomIntoView([node]);
+          }
+
+          return node.id;
+        },
+        { nodeID, text, textPosition },
+      );
+    };
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) {
+        break;
+      }
+      text += value;
+      await createOrUpdateTextNode();
+    }
   };
 
   return (
@@ -172,17 +236,13 @@ export default function Plugin() {
           Scan Brand
         </button>
       </div>
-      <input>
-
-      </input>
-      <div>
-      
-      </div>
+      {completion && (
         <div className="border border-gray-600 rounded p-5 bg-gray-800 shadow-lg m-2 text-gray-200">
           <pre className="whitespace-pre-wrap">
             <p className="text-md">{completion}</p>
           </pre>
         </div>
+      )}
     </div>
   );
 }
