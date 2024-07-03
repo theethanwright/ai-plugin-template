@@ -41,9 +41,9 @@ async function buildMessageForParsingPage(data: WebsiteData): Promise<WebsiteDat
     const css = data.css;
     const screenshot = data.screenshot;
 
-    const message = {
+    const message: ChatCompletionRequestMessage = {
       role: "user",
-      content: "The is " + css,  
+      content: `The text is ${text}. The colors are ${color}. The CSS is ${css}. The screenshot data is ${screenshot}.`,
     };
 
     console.log("Built message for parsing page:", message);

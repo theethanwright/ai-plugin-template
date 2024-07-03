@@ -33,7 +33,7 @@ const systemMessage = {
                     If any information is not available, return an empty string for colors and fonts, and an empty list for color_scheme, key_adjectives, and key_verbs.`,
 } as const;
 
-async function buildMessageForParsingPage(data: WebsiteData): Promise<WebsiteData> {
+async function buildMessageForParsingPage(data: WebsiteData): Promise<ChatCompletionRequestMessage> {
   try {
     console.log("Received WebsiteData:", data);
     const color = data.colors;
@@ -41,9 +41,9 @@ async function buildMessageForParsingPage(data: WebsiteData): Promise<WebsiteDat
     const css = data.css;
     const screenshot = data.screenshot;
 
-    const message = {
+    const message: ChatCompletionRequestMessage = {
       role: "user",
-      content: "The is " + css,  
+      content: `The text is ${text}. The colors are ${color}. The CSS is ${css}. The screenshot data is ${screenshot}.`,
     };
 
     console.log("Built message for parsing page:", message);

@@ -4,8 +4,8 @@ import {
   OpenAIApi,
 } from "openai-edge";
 import { OpenAIStream, StreamingTextResponse } from "ai";
+import { CompletionRequestBody } from "@/lib/types";
 import { WebsiteData } from "@/lib/callData";
-import { text } from "stream/consumers";
 
 // Create an OpenAI API client
 const config = new Configuration({
@@ -33,57 +33,50 @@ const systemMessage = {
                     If any information is not available, return an empty string for colors and fonts, and an empty list for color_scheme, key_adjectives, and key_verbs.`,
 } as const;
 
-async function buildMessageForParsingPage(data: WebsiteData): Promise<WebsiteData> {
-  try {
-    console.log("Received WebsiteData:", data);
-    const color = data.colors;
-    const text = data.text;
-    const css = data.css;
-    const screenshot = data.screenshot;
+// This is used to format the message that the user sends to the API. Note we should
+// never have the client create the prompt directly as this could mean that the client
+// could use your api for any general purpose completion and leak the "secret sauce" of
+// your prompt.
+async function buildUserMessage(
+  req: Request,
+): Promise<ChatCompletionRequestMessage> {
+  const body = await req.json();
 
-    const message = {
-      role: "user",
-      content: "The is " + css,  
-    };
+  // We use zod to validate the request body. To change the data that is sent to the API,
+  // change the CompletionRequestBody type in lib/types.ts
+  const { layers } = CompletionRequestBody.parse(body);
 
-    console.log("Built message for parsing page:", message);
-    return message;
-  } catch (error) {
-    console.error("Error in buildMessageForParsingPage:", error);
-    throw error;
+  const bulletedList = layers.map((layer) => `* ${layer}`).join("\n");
+
+  return {
+    role: "user",
+    content: bulletedList,
+  };
+}
+
+async function buildMessageForParsingPage(req: Request,data: WebsiteData) {
+  return {
+    role: "user",
+    content: "The colors are " + data.colors,
   }
 }
 
 export async function POST(req: Request) {
-  try {
-    console.log("Received POST request:", req);
+  // Ask OpenAI for a streaming completion given the prompt
+  const response = await openai.createChatCompletion({
+    model: "gpt-3.5-turbo",
+    stream: true,
+    temperature: 0,
+    messages: [systemMessage, await buildMessageForParsingPage(req)],
+  });
 
-    const data = await req.json();
-    console.log("Parsed request JSON:", data);
+  // // Convert the response into a friendly text-stream
+  // const stream = OpenAIStream(response);
+  // // Respond with the stream
+  // const result = new StreamingTextResponse(stream);
 
-    const userMessage = await buildMessageForParsingPage(data);
-    console.log("User message for OpenAI:", userMessage);
+  // return result;
 
-    // Ask OpenAI for a streaming completion given the prompt
-    const response = await openai.createChatCompletion({
-      model: "gpt-3.5-turbo",
-      stream: true,
-      temperature: 0,
-      messages: [systemMessage, userMessage],
-    });
-
-    // Convert the response into a friendly text-stream
-    const stream = OpenAIStream(response);
-    
-    // Debug: log the response from OpenAI
-    console.log("OpenAI streaming response:", stream);
-
-    // Respond with the stream
-    const result = new StreamingTextResponse(stream);
-
-    return result;
-  } catch (error) {
-    console.error("Error in POST handler:", error);
-    return new Response("Internal Server Error", { status: 500 });
-  }
+  console.log("chatgpt responds: " + response);
+  return response;
 }

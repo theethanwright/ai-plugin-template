@@ -5,7 +5,6 @@ import {
 } from "openai-edge";
 import { OpenAIStream, StreamingTextResponse } from "ai";
 import { WebsiteData } from "@/lib/callData";
-import { text } from "stream/consumers";
 
 // Create an OpenAI API client
 const config = new Configuration({
@@ -37,13 +36,10 @@ async function buildMessageForParsingPage(data: WebsiteData): Promise<WebsiteDat
   try {
     console.log("Received WebsiteData:", data);
     const color = data.colors;
-    const text = data.text;
-    const css = data.css;
-    const screenshot = data.screenshot;
 
     const message = {
       role: "user",
-      content: "The is " + css,  
+      content: "The colors are " + color,
     };
 
     console.log("Built message for parsing page:", message);

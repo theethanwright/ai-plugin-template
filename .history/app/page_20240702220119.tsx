@@ -9,55 +9,26 @@ const Plugin: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   async function streamAIResponse(data: WebsiteData) {
-    try {
-      console.log("Sending data to /api/completion:", data);
-      const resp = await fetch("/api/completion", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
+    const resp = await fetch("/api/completion", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
 
-      if (!resp.body) {
-        throw new Error("No response body");
-      }
-
-      const reader = resp.body.getReader();
-      const decoder = new TextDecoder("utf-8");
-      let result = "";
-
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-        result += decoder.decode(value);
-      }
-
-      console.log("Received response from /api/completion:", result);
-
-      try {
-        const jsonResult = JSON.parse(result);
-        setScrapedData(jsonResult);
-      } catch (parseError) {
-        throw new Error(`Failed to parse JSON: ${parseError.message}`);
-      }
-
-    } catch (error) {
-      console.error("Error in streamAIResponse:", error);
-      setError(error instanceof Error ? error.message : 'An unknown error occurred');
-    }
+    // setScrapedData(resp.body);
   }
 
   const scrapeBrand = async () => {
     try {
-      console.log("Starting scrapeBrand with URL:", url);
       const data = await callData(url);
-      console.log("Received data from callData:", data);
-      
-      await streamAIResponse(data);
+      // const output = await streamAIResponse({
+      //   data,
+      // });
+      setScrapedData(data)
       setError(null); // Clear any previous error
     } catch (error) {
-      console.error("Error in scrapeBrand:", error);
       if (error instanceof Error) {
         setError(error.message);
       } else {

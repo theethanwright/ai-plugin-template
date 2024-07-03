@@ -43,7 +43,7 @@ async function buildMessageForParsingPage(data: WebsiteData): Promise<WebsiteDat
 
     const message = {
       role: "user",
-      content: "The is " + css,  
+      content: "The is " + data,  
     };
 
     console.log("Built message for parsing page:", message);

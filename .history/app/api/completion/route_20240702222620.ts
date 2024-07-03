@@ -5,7 +5,6 @@ import {
 } from "openai-edge";
 import { OpenAIStream, StreamingTextResponse } from "ai";
 import { WebsiteData } from "@/lib/callData";
-import { text } from "stream/consumers";
 
 // Create an OpenAI API client
 const config = new Configuration({
@@ -33,17 +32,14 @@ const systemMessage = {
                     If any information is not available, return an empty string for colors and fonts, and an empty list for color_scheme, key_adjectives, and key_verbs.`,
 } as const;
 
-async function buildMessageForParsingPage(data: WebsiteData): Promise<WebsiteData> {
+async function buildMessageForParsingPage(req: Request): Promise<WebsiteData> {
   try {
     console.log("Received WebsiteData:", data);
     const color = data.colors;
-    const text = data.text;
-    const css = data.css;
-    const screenshot = data.screenshot;
 
     const message = {
       role: "user",
-      content: "The is " + css,  
+      content: "The colors are " + color,
     };
 
     console.log("Built message for parsing page:", message);
@@ -72,16 +68,17 @@ export async function POST(req: Request) {
       messages: [systemMessage, userMessage],
     });
 
-    // Convert the response into a friendly text-stream
-    const stream = OpenAIStream(response);
-    
     // Debug: log the response from OpenAI
-    console.log("OpenAI streaming response:", stream);
+    console.log("OpenAI response:", response);
 
-    // Respond with the stream
-    const result = new StreamingTextResponse(stream);
+    // // Convert the response into a friendly text-stream
+    // const stream = OpenAIStream(response);
+    // // Respond with the stream
+    // const result = new StreamingTextResponse(stream);
 
-    return result;
+    // return result;
+
+    return response;
   } catch (error) {
     console.error("Error in POST handler:", error);
     return new Response("Internal Server Error", { status: 500 });

@@ -19,29 +19,13 @@ const Plugin: React.FC = () => {
         body: JSON.stringify(data),
       });
 
-      if (!resp.body) {
-        throw new Error("No response body");
+      if (!resp.ok) {
+        throw new Error(`HTTP error! Status: ${resp.status}`);
       }
 
-      const reader = resp.body.getReader();
-      const decoder = new TextDecoder("utf-8");
-      let result = "";
-
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-        result += decoder.decode(value);
-      }
-
+      const result = await resp.json();
       console.log("Received response from /api/completion:", result);
-
-      try {
-        const jsonResult = JSON.parse(result);
-        setScrapedData(jsonResult);
-      } catch (parseError) {
-        throw new Error(`Failed to parse JSON: ${parseError.message}`);
-      }
-
+      setScrapedData(result);
     } catch (error) {
       console.error("Error in streamAIResponse:", error);
       setError(error instanceof Error ? error.message : 'An unknown error occurred');
