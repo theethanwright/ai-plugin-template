@@ -13,7 +13,7 @@
     "prettier:write": "prettier --write ."
   },
   "dependencies": {
-    "@figma/plugin-typings": "^1.97.0",
+    "@figma/plugin-typings": "*",
     "@types/node": "20.4.2",
     "@types/react": "18.2.15",
     "@types/react-dom": "18.2.7",
