@@ -40,8 +40,6 @@ const Plugin: React.FC = () => {
       try {
         const jsonResult = JSON.parse(result);
         setScrapedData(jsonResult);
-        console.log("Parsed JSON result:", jsonResult);
-        return jsonResult;
       } catch (parseError) {
         throw new Error(`Failed to parse JSON: ${parseError.message}`);
       }
@@ -49,7 +47,6 @@ const Plugin: React.FC = () => {
     } catch (error) {
       console.error("Error in streamAIResponse:", error);
       setError(error instanceof Error ? error.message : 'An unknown error occurred');
-      return null;
     }
   }
 
@@ -59,12 +56,7 @@ const Plugin: React.FC = () => {
       const data = await callData(url);
       console.log("Received data from callData:", data);
       
-      const scrapedData = await streamAIResponse(data);
-      console.log("The scraped data is:", scrapedData);
-      if (scrapedData) {
-        await createFigmaFrameWithBox(scrapedData);
-      }
-
+      await streamAIResponse(data);
       setError(null); // Clear any previous error
     } catch (error) {
       console.error("Error in scrapeBrand:", error);
@@ -76,70 +68,11 @@ const Plugin: React.FC = () => {
     }
   };
 
-  const createFigmaFrameWithBox = async (scrapedData: any) => {
-    try {
-      const { primary_color } = scrapedData;
-      console.log("Primary color from scraped data:", primary_color);
-      let frameID: string | null = null;
-
-      frameID = await figmaAPI.run(
-        async (figma, { frameID, primary_color, hexToRgb }) => {
-          console.log("Running figmaAPI script with frameID:", frameID);
-          let frame = figma.getNodeById(frameID ?? "") as FrameNode;
-
-          if (!frame) {
-            console.log("Creating a new frame");
-            frame = figma.createFrame();
-            frame.x = 0;
-            frame.y = 0;
-            frame.resize(300, 200);
-          } else {
-            console.log("Using existing frame:", frameID);
-          }
-
-          const rect = figma.createRectangle();
-          rect.resize(100, 100);
-          const rgbColor = hexToRgb(primary_color);
-          console.log("Converted primary color to RGB:", rgbColor);
-          rect.fills = [{ type: "SOLID", color: rgbColor }];
-          rect.x = 20;
-          rect.y = 20;
-          console.log("Created rectangle with color:", primary_color);
-
-          frame.appendChild(rect);
-
-          const text = figma.createText();
-          await figma.loadFontAsync({ family: "Inter", style: "Regular" });
-          text.fontName = { family: "Inter", style: "Regular" };
-          text.characters = "Primary Color";
-          text.x = rect.x + rect.width + 10;
-          text.y = rect.y;
-          console.log("Created text node");
-
-          frame.appendChild(text);
-
-          console.log("Frame after adding elements:", frame);
-          return frame.id;
-        },
-        { frameID, primary_color, hexToRgb },
-      );
-
-      console.log("Created frame with box in Figma with ID:", frameID);
-    } catch (error) {
-      console.error("Error creating frame in Figma:", error);
-      setError(error instanceof Error ? error.message : 'An unknown error occurred while creating frame in Figma');
+  const handleFigmaFetch = async () => {
+    const figmaFileKey = prompt("Enter the Figma file key:");
+    if (figmaFileKey) {
+      await fetchFigmaData(figmaFileKey);
     }
-  };
-
-  const hexToRgb = (hex: string) => {
-    console.log("Converting hex to RGB:", hex);
-    const bigint = parseInt(hex.slice(1), 16);
-    const r = (bigint >> 16) & 255;
-    const g = (bigint >> 8) & 255;
-    const b = (bigint & 255);
-    const rgb = { r: r / 255, g: g / 255, b: b / 255 };
-    console.log("Converted hex to RGB:", hex, rgb);
-    return rgb;
   };
 
   return (

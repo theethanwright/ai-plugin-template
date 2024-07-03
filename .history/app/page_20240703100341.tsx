@@ -93,8 +93,6 @@ const Plugin: React.FC = () => {
             frame.x = 0;
             frame.y = 0;
             frame.resize(300, 200);
-          } else {
-            console.log("Using existing frame:", frameID);
           }
 
           const rect = figma.createRectangle();
@@ -118,7 +116,6 @@ const Plugin: React.FC = () => {
 
           frame.appendChild(text);
 
-          console.log("Frame after adding elements:", frame);
           return frame.id;
         },
         { frameID, primary_color, hexToRgb },

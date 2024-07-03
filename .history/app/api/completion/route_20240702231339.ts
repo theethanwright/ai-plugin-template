@@ -42,7 +42,7 @@ async function buildMessageForParsingPage(data: WebsiteData): Promise<ChatComple
 
     const message: ChatCompletionRequestMessage = {
       role: "user",
-      content: `The text is ${text}. The colors are ${color}. The CSS is ${css}`,
+      content: `The text is ${text}. The colors are ${color}.`,
     };
 
     console.log("Built message for parsing page:", message);

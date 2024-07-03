@@ -5,6 +5,7 @@ import {
 } from "openai-edge";
 import { OpenAIStream, StreamingTextResponse } from "ai";
 import { WebsiteData } from "@/lib/callData";
+import { text } from "stream/consumers";
 
 // Create an OpenAI API client
 const config = new Configuration({
@@ -42,7 +43,7 @@ async function buildMessageForParsingPage(data: WebsiteData): Promise<ChatComple
 
     const message: ChatCompletionRequestMessage = {
       role: "user",
-      content: `The text is ${text}. The colors are ${color}. The CSS is ${css}`,
+      content: `The text is ${text}. The colors are ${color}. The CSS is ${css}. The screenshot data is ${screenshot}.`,
     };
 
     console.log("Built message for parsing page:", message);
@@ -65,7 +66,7 @@ export async function POST(req: Request) {
 
     // Ask OpenAI for a streaming completion given the prompt
     const response = await openai.createChatCompletion({
-      model: "gpt-4-turbo",
+      model: "gpt-3.5-turbo",
       stream: true,
       temperature: 0,
       messages: [systemMessage, userMessage],

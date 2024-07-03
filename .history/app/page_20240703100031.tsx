@@ -93,15 +93,11 @@ const Plugin: React.FC = () => {
             frame.x = 0;
             frame.y = 0;
             frame.resize(300, 200);
-          } else {
-            console.log("Using existing frame:", frameID);
           }
 
           const rect = figma.createRectangle();
           rect.resize(100, 100);
-          const rgbColor = hexToRgb(primary_color);
-          console.log("Converted primary color to RGB:", rgbColor);
-          rect.fills = [{ type: "SOLID", color: rgbColor }];
+          rect.fills = [{ type: "SOLID", color: hexToRgb(primary_color) }];
           rect.x = 20;
           rect.y = 20;
           console.log("Created rectangle with color:", primary_color);
@@ -118,7 +114,6 @@ const Plugin: React.FC = () => {
 
           frame.appendChild(text);
 
-          console.log("Frame after adding elements:", frame);
           return frame.id;
         },
         { frameID, primary_color, hexToRgb },
@@ -132,7 +127,6 @@ const Plugin: React.FC = () => {
   };
 
   const hexToRgb = (hex: string) => {
-    console.log("Converting hex to RGB:", hex);
     const bigint = parseInt(hex.slice(1), 16);
     const r = (bigint >> 16) & 255;
     const g = (bigint >> 8) & 255;
