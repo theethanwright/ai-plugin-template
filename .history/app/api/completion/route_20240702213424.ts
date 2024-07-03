@@ -57,7 +57,7 @@ async function buildUserMessage(
 async function buildMessageForParsingPage(data: WebsiteData) {
   return {
     role: "user",
-    content: "The colors are " + data.colors,
+    content: "The colors are " + data.colors;
   }
 }
 
@@ -77,6 +77,5 @@ export async function POST(req: Request) {
 
   // return result;
 
-  console.log("chatgpt responds: " + response);
   return response;
 }

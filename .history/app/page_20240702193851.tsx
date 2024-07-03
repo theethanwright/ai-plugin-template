@@ -16,17 +16,12 @@ const Plugin: React.FC = () => {
       },
       body: JSON.stringify(body),
     });
-
-    // setScrapedData(resp.body);
-  }
+  
 
   const scrapeBrand = async () => {
     try {
       const data = await callData(url);
-      // const output = await streamAIResponse({
-      //   data,
-      // });
-      setScrapedData(data)
+      setScrapedData(data);
       setError(null); // Clear any previous error
     } catch (error) {
       if (error instanceof Error) {

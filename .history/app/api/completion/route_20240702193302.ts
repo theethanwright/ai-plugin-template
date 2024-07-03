@@ -5,7 +5,6 @@ import {
 } from "openai-edge";
 import { OpenAIStream, StreamingTextResponse } from "ai";
 import { CompletionRequestBody } from "@/lib/types";
-import { WebsiteData } from "@/lib/callData";
 
 // Create an OpenAI API client
 const config = new Configuration({
@@ -37,28 +36,11 @@ const systemMessage = {
 // never have the client create the prompt directly as this could mean that the client
 // could use your api for any general purpose completion and leak the "secret sauce" of
 // your prompt.
-async function buildUserMessage(
-  req: Request,
-): Promise<ChatCompletionRequestMessage> {
-  const body = await req.json();
-
-  // We use zod to validate the request body. To change the data that is sent to the API,
-  // change the CompletionRequestBody type in lib/types.ts
-  const { layers } = CompletionRequestBody.parse(body);
-
-  const bulletedList = layers.map((layer) => `* ${layer}`).join("\n");
-
+const data = await callData(url) {
   return {
     role: "user",
     content: bulletedList,
   };
-}
-
-async function buildMessageForParsingPage(data: WebsiteData) {
-  return {
-    role: "user",
-    content: "The colors are " + data.colors,
-  }
 }
 
 export async function POST(req: Request) {
@@ -67,16 +49,13 @@ export async function POST(req: Request) {
     model: "gpt-3.5-turbo",
     stream: true,
     temperature: 0,
-    messages: [systemMessage, await buildMessageForParsingPage(req)],
+    messages: [systemMessage, await buildUserMessage(req)],
   });
 
-  // // Convert the response into a friendly text-stream
-  // const stream = OpenAIStream(response);
-  // // Respond with the stream
-  // const result = new StreamingTextResponse(stream);
+  // Convert the response into a friendly text-stream
+  const stream = OpenAIStream(response);
+  // Respond with the stream
+  const result = new StreamingTextResponse(stream);
 
-  // return result;
-
-  console.log("chatgpt responds: " + response);
-  return response;
+  return result;
 }

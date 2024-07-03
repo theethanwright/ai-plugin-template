@@ -65,7 +65,7 @@ async function getWebsiteData(url: string): Promise<WebsiteData> {
   await browser.close();
 
   return {
-    text: text,
+    text,
     css: stylesheets,
     colors: Array.from(colors),
     screenshot,

@@ -77,6 +77,5 @@ export async function POST(req: Request) {
 
   // return result;
 
-  console.log("chatgpt responds: " + response);
   return response;
 }

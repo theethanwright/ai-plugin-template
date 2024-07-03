@@ -17,7 +17,7 @@ const Plugin: React.FC = () => {
       body: JSON.stringify(body),
     });
 
-    // setScrapedData(resp.body);
+    setScrapedData(resp.body);
   }
 
   const scrapeBrand = async () => {

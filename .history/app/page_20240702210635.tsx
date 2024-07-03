@@ -8,17 +8,15 @@ const Plugin: React.FC = () => {
   const [scrapedData, setScrapedData] = useState<WebsiteData | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  async function streamAIResponse(body: z.infer<typeof CompletionRequestBody>) {
-    const resp = await fetch("/api/completion", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    });
-
-    // setScrapedData(resp.body);
-  }
+  // async function streamAIResponse(body: z.infer<typeof CompletionRequestBody>) {
+  //   const resp = await fetch("/api/completion", {
+  //     method: "POST",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //     },
+  //     body: JSON.stringify(body),
+  //   });
+  // }
 
   const scrapeBrand = async () => {
     try {

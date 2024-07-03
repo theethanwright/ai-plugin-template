@@ -5,7 +5,6 @@ import {
 } from "openai-edge";
 import { OpenAIStream, StreamingTextResponse } from "ai";
 import { CompletionRequestBody } from "@/lib/types";
-import { WebsiteData } from "@/lib/callData";
 
 // Create an OpenAI API client
 const config = new Configuration({
@@ -54,29 +53,19 @@ async function buildUserMessage(
   };
 }
 
-async function buildMessageForParsingPage(data: WebsiteData) {
-  return {
-    role: "user",
-    content: "The colors are " + data.colors,
-  }
-}
-
 export async function POST(req: Request) {
   // Ask OpenAI for a streaming completion given the prompt
   const response = await openai.createChatCompletion({
     model: "gpt-3.5-turbo",
     stream: true,
     temperature: 0,
-    messages: [systemMessage, await buildMessageForParsingPage(req)],
+    messages: [systemMessage, await buildUserMessage(req)],
   });
 
-  // // Convert the response into a friendly text-stream
-  // const stream = OpenAIStream(response);
-  // // Respond with the stream
-  // const result = new StreamingTextResponse(stream);
+  // Convert the response into a friendly text-stream
+  const stream = OpenAIStream(response);
+  // Respond with the stream
+  const result = new StreamingTextResponse(stream);
 
-  // return result;
-
-  console.log("chatgpt responds: " + response);
-  return response;
+  return result;
 }

@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextApiRequest, NextApiResponse } from 'next';
 import puppeteer from 'puppeteer';
 import cheerio from 'cheerio';
 import { parse as parseCSS } from 'css';
@@ -65,26 +65,28 @@ async function getWebsiteData(url: string): Promise<WebsiteData> {
   await browser.close();
 
   return {
-    text: text,
+    text,
     css: stylesheets,
     colors: Array.from(colors),
     screenshot,
   };
 }
 
-export async function GET(req: NextRequest) {
-  const url = req.nextUrl.searchParams.get('url');
+// Define the GET handler as a named export
+export async function GET(req: NextApiRequest, res: NextApiResponse) {
+  const { url } = req.query;
 
-  if (!url) {
-    return NextResponse.json({ error: 'Invalid URL' }, { status: 400 });
+  if (typeof url !== 'string') {
+    res.status(400).json({ error: 'Invalid URL' });
+    return;
   }
 
   try {
     const data = await getWebsiteData(url);
     // Convert Buffer to base64 string for JSON serialization
     data.screenshot = data.screenshot.toString('base64');
-    return NextResponse.json(data, { status: 200 });
+    res.status(200).json(data);
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch website data' }, { status: 500 });
+    res.status(500).json({ error: 'Failed to fetch website data' });
   }
 }
