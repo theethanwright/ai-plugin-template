@@ -87,16 +87,16 @@ const Plugin: React.FC = () => {
           console.log("Running figmaAPI script with frameID:", frameID);
 
           // Define hexToRgb inside the context
-          // const hexToRgb = (hex: string) => {
-          //   console.log("Converting hex to RGB inside context:", hex);
-          //   const bigint = parseInt(hex.slice(1), 16);
-          //   const r = (bigint >> 16) & 255;
-          //   const g = (bigint >> 8) & 255;
-          //   const b = (bigint & 255);
-          //   const rgb = { r: r / 255, g: g / 255, b: b / 255 };
-          //   console.log("Converted hex to RGB inside context:", hex, rgb);
-          //   return rgb;
-          // };
+          const hexToRgb = (hex: string) => {
+            console.log("Converting hex to RGB inside context:", hex);
+            const bigint = parseInt(hex.slice(1), 16);
+            const r = (bigint >> 16) & 255;
+            const g = (bigint >> 8) & 255;
+            const b = (bigint & 255);
+            const rgb = { r: r / 255, g: g / 255, b: b / 255 };
+            console.log("Converted hex to RGB inside context:", hex, rgb);
+            return rgb;
+          };
 
           let frame = figma.getNodeById(frameID ?? "") as FrameNode;
 
@@ -112,7 +112,7 @@ const Plugin: React.FC = () => {
 
           const rect = figma.createRectangle();
           rect.resize(100, 100);
-          const rgbColor = figma.util.rgb(primary_color);
+          const rgbColor = hexToRgb(primary_color);
           console.log("Converted primary color to RGB:", rgbColor);
           rect.fills = [{ type: "SOLID", color: rgbColor }];
           rect.x = 20;
@@ -134,11 +134,10 @@ const Plugin: React.FC = () => {
           const color = figma.createText();
           await figma.loadFontAsync({ family: "Inter", style: "Regular" });
           color.fontName = { family: "Inter", style: "Regular" };
-          color.fills = [{ type: "SOLID", color: rgbColor }];
           color.textAlignHorizontal = 'CENTER';
           color.characters = `Primary Color is ${primary_color}`;
-          color.x = rect.x + rect.width * 0.5;
-          color.y = rect.y + rect.height * 0.5;
+          color.x = rect.x + rect.width + 10;
+          color.y = rect.y;
           console.log("Created text node");
 
           frame.appendChild(color);

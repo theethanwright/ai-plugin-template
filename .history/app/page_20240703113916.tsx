@@ -83,20 +83,20 @@ const Plugin: React.FC = () => {
       let frameID: string | null = null;
 
       frameID = await figmaAPI.run(
-        async (figma, { frameID, primary_color, key_verbs }) => {
+        async (figma, { frameID, primary_color }) => {
           console.log("Running figmaAPI script with frameID:", frameID);
 
           // Define hexToRgb inside the context
-          // const hexToRgb = (hex: string) => {
-          //   console.log("Converting hex to RGB inside context:", hex);
-          //   const bigint = parseInt(hex.slice(1), 16);
-          //   const r = (bigint >> 16) & 255;
-          //   const g = (bigint >> 8) & 255;
-          //   const b = (bigint & 255);
-          //   const rgb = { r: r / 255, g: g / 255, b: b / 255 };
-          //   console.log("Converted hex to RGB inside context:", hex, rgb);
-          //   return rgb;
-          // };
+          const hexToRgb = (hex: string) => {
+            console.log("Converting hex to RGB inside context:", hex);
+            const bigint = parseInt(hex.slice(1), 16);
+            const r = (bigint >> 16) & 255;
+            const g = (bigint >> 8) & 255;
+            const b = (bigint & 255);
+            const rgb = { r: r / 255, g: g / 255, b: b / 255 };
+            console.log("Converted hex to RGB inside context:", hex, rgb);
+            return rgb;
+          };
 
           let frame = figma.getNodeById(frameID ?? "") as FrameNode;
 
@@ -105,14 +105,14 @@ const Plugin: React.FC = () => {
             frame = figma.createFrame();
             frame.x = 0;
             frame.y = 0;
-            frame.resize(400, 200);
+            frame.resize(300, 200);
           } else {
             console.log("Using existing frame:", frameID);
           }
 
           const rect = figma.createRectangle();
           rect.resize(100, 100);
-          const rgbColor = figma.util.rgb(primary_color);
+          const rgbColor = hexToRgb(primary_color);
           console.log("Converted primary color to RGB:", rgbColor);
           rect.fills = [{ type: "SOLID", color: rgbColor }];
           rect.x = 20;
@@ -131,25 +131,13 @@ const Plugin: React.FC = () => {
 
           frame.appendChild(colorText);
 
-          const color = figma.createText();
-          await figma.loadFontAsync({ family: "Inter", style: "Regular" });
-          color.fontName = { family: "Inter", style: "Regular" };
-          color.fills = [{ type: "SOLID", color: rgbColor }];
-          color.textAlignHorizontal = 'CENTER';
-          color.characters = `Primary Color is ${primary_color}`;
-          color.x = rect.x + rect.width * 0.5;
-          color.y = rect.y + rect.height * 0.5;
-          console.log("Created text node");
-
-          frame.appendChild(color);
-
           const keyVerbs = figma.createText();
           await figma.loadFontAsync({ family: "Inter", style: "Regular" });
           keyVerbs.fontName = { family: "Inter", style: "Regular" };
           keyVerbs.fontSize = 10;
           keyVerbs.characters = `The key verbs are ${key_verbs}`;
           keyVerbs.x = rect.x + rect.width + 10;
-          keyVerbs.y = colorText.height + 20;
+          keyVerbs.y = rect.y; + colorText.height + 10;
 
           frame.appendChild(colorText);
 
@@ -157,7 +145,7 @@ const Plugin: React.FC = () => {
           console.log("Frame after adding elements:", frame);
           return frame.id;
         },
-        { frameID, primary_color, key_verbs },
+        { frameID, primary_color },
       );
 
       console.log("Created frame with box in Figma with ID:", frameID);
