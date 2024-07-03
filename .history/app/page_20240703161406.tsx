@@ -127,6 +127,17 @@ const Plugin: React.FC = () => {
 
           primaryContainer.appendChild(primaryColorText);
 
+          const keyVerbs = figma.createText();
+          await figma.loadFontAsync({ family: "Inter", style: "Regular" });
+          keyVerbs.fontName = { family: "Inter", style: "Regular" };
+          keyVerbs.fontSize = 10;
+          keyVerbs.characters = `The key verbs are ${key_verbs}`;
+          keyVerbs.x = rect1.x + rect1.width + 10;
+          keyVerbs.y = colorText.height + 20;
+
+          frame.appendChild(keyVerbs);
+
+
           console.log("Frame after adding elements:", frame);
           return frame.id;
         },

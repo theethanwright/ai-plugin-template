@@ -78,12 +78,12 @@ const Plugin: React.FC = () => {
 
   const createFigmaFrameWithBox = async (scrapedData: any) => {
     try {
-      const { primary_color, secondary_color, key_verbs } = scrapedData;
+      const { primary_color, key_verbs } = scrapedData;
       console.log("Primary color from scraped data:", primary_color);
       let frameID: string | null = null;
 
       frameID = await figmaAPI.run(
-        async (figma, { frameID, primary_color, key_verbs, secondary_color }) => {
+        async (figma, { frameID, primary_color, key_verbs }) => {
           console.log("Running figmaAPI script with frameID:", frameID);
 
           let frame = figma.getNodeById(frameID ?? "") as FrameNode;
@@ -93,44 +93,57 @@ const Plugin: React.FC = () => {
             frame = figma.createFrame();
             frame.x = 0;
             frame.y = 0;
-            frame.resize(471, 142);
+            frame.resize(400, 200);
           } else {
             console.log("Using existing frame:", frameID);
           }
 
-          const primaryTitle = figma.createText();
+          const rect = figma.createRectangle();
+          rect.resize(100, 100);
+          rect.fills = [{ type: "SOLID", color: figma.util.rgb(primary_color) }];
+          rect.x = 20;
+          rect.y = 20;
+          console.log("Created rectangle with color:", primary_color);
+
+          frame.appendChild(rect);
+
+          const colorText = figma.createText();
           await figma.loadFontAsync({ family: "Inter", style: "Regular" });
-          primaryTitle.fontName = { family: "Inter", style: "Regular" };
-          primaryTitle.fontSize = 10;
-          primaryTitle.characters = `Primary Color`;
-          primaryTitle.x = 12;
-          primaryTitle.y = 14;
+          colorText.fontName = { family: "Inter", style: "Regular" };
+          colorText.characters = `Primary Color is ${primary_color}`;
+          colorText.x = rect.x + rect.width + 10;
+          colorText.y = rect.y;
           console.log("Created text node");
 
-          frame.appendChild(primaryTitle);
+          frame.appendChild(colorText);
 
-          const primaryContainer = figma.createFrame();
-          primaryContainer.x = 14;
-          primaryContainer.x = 27;
-          primaryContainer.resize(125, 30);
-          primaryContainer.fills = [{ type: "SOLID", color: figma.util.rgb(primary_color) }];
-          primaryContainer.layoutMode = "HORIZONTAL";
-          primaryContainer.layoutAlign = "CENTER";
-
-          frame.appendChild(primaryContainer)
-
-          const primaryColorText = figma.createText();
+          const color = figma.createText();
           await figma.loadFontAsync({ family: "Inter", style: "Regular" });
-          primaryColorText.fontName = { family: "Inter", style: "Regular" };
-          primaryColorText.characters = primary_color;
+          color.fontName = { family: "Inter", style: "Regular" };
+          color.fills = [{ type: "SOLID", color: rgbColor }];
+          color.textAlignHorizontal = 'CENTER';
+          color.characters = `Primary Color is ${primary_color}`;
+          color.x = rect.x + rect.width * 0.5;
+          color.y = rect.y + rect.height * 0.5;
           console.log("Created text node");
 
-          primaryContainer.appendChild(primaryColorText);
+          frame.appendChild(color);
+
+          const keyVerbs = figma.createText();
+          await figma.loadFontAsync({ family: "Inter", style: "Regular" });
+          keyVerbs.fontName = { family: "Inter", style: "Regular" };
+          keyVerbs.fontSize = 10;
+          keyVerbs.characters = `The key verbs are ${key_verbs}`;
+          keyVerbs.x = rect.x + rect.width + 10;
+          keyVerbs.y = colorText.height + 20;
+
+          frame.appendChild(colorText);
+
 
           console.log("Frame after adding elements:", frame);
           return frame.id;
         },
-        { frameID, primary_color, key_verbs, secondary_color },
+        { frameID, primary_color, key_verbs },
       );
 
       console.log("Created frame with box in Figma with ID:", frameID);

@@ -93,39 +93,49 @@ const Plugin: React.FC = () => {
             frame = figma.createFrame();
             frame.x = 0;
             frame.y = 0;
-            frame.resize(471, 142);
+            frame.resize(400, 300);
           } else {
             console.log("Using existing frame:", frameID);
           }
 
-          const primaryTitle = figma.createText();
+          const rect1 = figma.createRectangle();
+          rect1.resize(100, 100);
+          rect1.fills = [{ type: "SOLID", color: figma.util.rgb(primary_color) }];
+          rect1.x = 20;
+          rect1.y = 20;
+          console.log("Created rectangle with color:", primary_color);
+
+          frame.appendChild(rect1);
+
+          const rect2 = figma.createRectangle();
+          rect2.resize(100, 100);
+          rect2.fills = [{ type: "SOLID", color: figma.util.rgb(secondary_color) }];
+          rect2.x = 20;
+          rect2.y = rect1.y + 20;
+          console.log("Created rectangle with color:", secondary_color);
+
+          frame.appendChild(rect2);
+
+          const colorText = figma.createText();
           await figma.loadFontAsync({ family: "Inter", style: "Regular" });
-          primaryTitle.fontName = { family: "Inter", style: "Regular" };
-          primaryTitle.fontSize = 10;
-          primaryTitle.characters = `Primary Color`;
-          primaryTitle.x = 12;
-          primaryTitle.y = 14;
+          colorText.fontName = { family: "Inter", style: "Regular" };
+          colorText.characters = `Primary Color is ${primary_color}`;
+          colorText.x = rect1.x + rect1.width + 10;
+          colorText.y = rect1.y;
           console.log("Created text node");
 
-          frame.appendChild(primaryTitle);
+          frame.appendChild(colorText);
 
-          const primaryContainer = figma.createFrame();
-          primaryContainer.x = 14;
-          primaryContainer.x = 27;
-          primaryContainer.resize(125, 30);
-          primaryContainer.fills = [{ type: "SOLID", color: figma.util.rgb(primary_color) }];
-          primaryContainer.layoutMode = "HORIZONTAL";
-          primaryContainer.layoutAlign = "CENTER";
-
-          frame.appendChild(primaryContainer)
-
-          const primaryColorText = figma.createText();
+          const keyVerbs = figma.createText();
           await figma.loadFontAsync({ family: "Inter", style: "Regular" });
-          primaryColorText.fontName = { family: "Inter", style: "Regular" };
-          primaryColorText.characters = primary_color;
-          console.log("Created text node");
+          keyVerbs.fontName = { family: "Inter", style: "Regular" };
+          keyVerbs.fontSize = 10;
+          keyVerbs.characters = `The key verbs are ${key_verbs}`;
+          keyVerbs.x = rect1.x + rect1.width + 10;
+          keyVerbs.y = colorText.height + 20;
 
-          primaryContainer.appendChild(primaryColorText);
+          frame.appendChild(keyVerbs);
+
 
           console.log("Frame after adding elements:", frame);
           return frame.id;

@@ -112,20 +112,36 @@ const Plugin: React.FC = () => {
           const primaryContainer = figma.createFrame();
           primaryContainer.x = 14;
           primaryContainer.x = 27;
-          primaryContainer.resize(125, 30);
-          primaryContainer.fills = [{ type: "SOLID", color: figma.util.rgb(primary_color) }];
-          primaryContainer.layoutMode = "HORIZONTAL";
-          primaryContainer.layoutAlign = "CENTER";
 
-          frame.appendChild(primaryContainer)
+          const priamryColor = figma.createRectangle();
+          priamryColor.resize(100, 100);
+          priamryColor.fills = [{ type: "SOLID", color: figma.util.rgb(primary_color) }];
+          priamryColor.x = 20;
+          priamryColor.y = 20;
+          console.log("Created rectangle with color:", primary_color);
 
-          const primaryColorText = figma.createText();
+          frame.appendChild(priamryColor);
+
+          const colorText = figma.createText();
           await figma.loadFontAsync({ family: "Inter", style: "Regular" });
-          primaryColorText.fontName = { family: "Inter", style: "Regular" };
-          primaryColorText.characters = primary_color;
+          colorText.fontName = { family: "Inter", style: "Regular" };
+          colorText.characters = `Primary Color is ${primary_color}`;
+          colorText.x = rect1.x + rect1.width + 10;
+          colorText.y = rect1.y;
           console.log("Created text node");
 
-          primaryContainer.appendChild(primaryColorText);
+          frame.appendChild(colorText);
+
+          const keyVerbs = figma.createText();
+          await figma.loadFontAsync({ family: "Inter", style: "Regular" });
+          keyVerbs.fontName = { family: "Inter", style: "Regular" };
+          keyVerbs.fontSize = 10;
+          keyVerbs.characters = `The key verbs are ${key_verbs}`;
+          keyVerbs.x = rect1.x + rect1.width + 10;
+          keyVerbs.y = colorText.height + 20;
+
+          frame.appendChild(keyVerbs);
+
 
           console.log("Frame after adding elements:", frame);
           return frame.id;
